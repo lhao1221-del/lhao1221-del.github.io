@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="jemdoc.css" type="text/css">
+<title>Research Projects | Hao Li</title>
+</head>
+<body>
+<table summary="Table for page layout." id="tlayout">
+<tr valign="top">
+<td id="layout-menu">
+<div class="menu-category">Hao Li</div>
+<div class="menu-item"><a href="index.html">General&nbsp;Info</a></div>
+<div class="menu-item"><a href="publication.html">Publication&nbsp;List</a></div>
+<div class="menu-item"><a href="research.html" class="current">Research&nbsp;Projects</a></div>
+<div class="menu-item"><a href="cv.pdf">CV</a></div>
+<div class="menu-category">Links</div>
+<div class="menu-item"><a href="https://scholar.google.com/citations?user=rcQs1goAAAAJ&amp;hl=en">Google&nbsp;Scholar</a></div>
+<div class="menu-item"><a href="https://www.linkedin.com/in/hao-li-5a5414289/">LinkedIn</a></div>
+</td>
+<td id="layout-content">
+<div id="toptitle">
+<h1>Research Projects</h1>
+</div>
+
+<figure class="ring">
+<svg viewBox="0 0 320 320" role="img" aria-labelledby="ring-t">
+<title id="ring-t">16-stage differential ring oscillator: complementary edges travel around two rails that cross once at the top.</title>
+<path id="rails" class="wire" d=""/>
+<g id="stages"></g>
+<circle id="edgeA" class="edge-a" r="4.5" cx="-20" cy="-20"/>
+<circle id="edgeB" class="edge-b" r="4.5" cx="-20" cy="-20"/>
+</svg>
+<figcaption>A 16-stage differential ring oscillator, the building block of my VCO-based computing circuits.</figcaption>
+</figure>
+
+<h2>SUNY at Buffalo, NSF Research Assistant (Sep 2024 to present)</h2>
+<ul>
+<li><p><b>Ring oscillator and memristor linear-equation solver.</b> An 8 &times; 8 linear-equation system based on VCOs and memristors, fabricated in TSMC 65-nm CMOS. Measured results: 4 &times; 4 matrix inversion with 8-bit accuracy, 2 &mu;s solution latency, 0.4 mW power, and 0.0146 mm<sup>2</sup> area.</p></li>
+<li><p><b>12-qubit quantum computing chip.</b> A VCO and memristor based chip in TSMC 65-nm CMOS that runs Grover's search algorithm and the quantum Fourier transform. Simulated in Cadence Virtuoso; tape-out planned.</p></li>
+<li><p><b>Ring-VCO-based integrator</b> in TSMC 65-nm CMOS, fabricated.</p></li>
+<li><p><b>Dynamic element matching DAC</b> in TSMC 65-nm CMOS, simulated in Cadence Virtuoso and Simulink.</p></li>
+</ul>
+
+<h2>Silicon-Based Optoelectronic Interface Driver Chip for Optical Computing, Xi'an Jiaotong University (Dec 2022 to May 2024)</h2>
+<ul>
+<li><p>A silicon-based optoelectronic interface driver chip with 1 Gb/s input rate, fabricated in TSMC 180-nm CMOS, supporting up to 8-bit optoelectronic digital-to-analog conversion.</p></li>
+<li><p>The chip includes an 8-channel Mach-Zehnder modulator (MZM) driver and 8-segment MZM optical paths.</p></li>
+</ul>
+
+<h2>Pulsed TOF LiDAR Front-End Receiver, Xi'an Jiaotong University (Sep 2021 to Nov 2022)</h2>
+<ul>
+<li><p>A foldable stacked in-channel structure achieves current reuse and higher power efficiency in TSMC 180-nm CMOS. The chip has been fabricated and is now in commercial production.</p></li>
+<li><p>Fully integrates the low-power supply with the front-end circuit.</p></li>
+</ul>
+
+<div id="footer">
+<div id="footer-text">
+Last updated October 2026.
+</div>
+</div>
+</td>
+</tr>
+</table>
+
+<script>
+// 16-stage differential ring oscillator. Outer rail = +, inner rail = -.
+// The rails cross once at the top, which supplies the odd inversion,
+// so an edge laps the ring twice per period: once on each rail.
+(function(){
+  const N = 16, cx = 160, cy = 160, R = 110, GAP = 6;
+  const RO = R + GAP, RI = R - GAP, DELTA = 5, LAP = 3.2;
+  const ns = 'http://www.w3.org/2000/svg';
+  const g = document.getElementById('stages');
+  const pt = (r, deg) => { const a = deg * Math.PI / 180; return [cx + r * Math.cos(a), cy + r * Math.sin(a)]; };
+  const f = p => p.map(v => v.toFixed(2)).join(',');
+  const s = -90 + DELTA, e = 270 - DELTA;
+  document.getElementById('rails').setAttribute('d',
+    [RO, RI].map(r => `M${f(pt(r, s))} A${r},${r} 0 1,1 ${f(pt(r, e))}`).join(' ') +
+    ` M${f(pt(RO, e))} L${f(pt(RI, s))} M${f(pt(RI, e))} L${f(pt(RO, s))}`);
+  const cells = [];
+  for (let i = 0; i < N; i++){
+    const deg = -90 + (i + 0.5) * 360 / N, [x, y] = pt(R, deg);
+    const c = document.createElementNS(ns, 'g');
+    c.setAttribute('class', 'inv');
+    c.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${deg + 90})`);
+    const body = document.createElementNS(ns, 'path');
+    body.setAttribute('d', 'M-10,-12 L-10,12 L10,7 L10,-7 Z');
+    c.appendChild(body); g.appendChild(c); cells.push(c);
+  }
+  const A = document.getElementById('edgeA'), B = document.getElementById('edgeB');
+  const lerp = (a, b, u) => a + (b - a) * u;
+  let lit = -1;
+  function place(t){
+    const lap = Math.floor(t / LAP) % 2, deg = ((t % LAP) / LAP) * 360;
+    const cur = lap ? RI : RO, other = lap ? RO : RI;
+    let rA = cur;
+    if (deg < DELTA) rA = lerp(other, cur, 0.5 + deg / (2 * DELTA));
+    else if (deg > 360 - DELTA) rA = lerp(cur, other, (deg - (360 - DELTA)) / (2 * DELTA));
+    const [ax, ay] = pt(rA, deg - 90), [bx, by] = pt(RO + RI - rA, deg - 90);
+    A.setAttribute('cx', ax.toFixed(2)); A.setAttribute('cy', ay.toFixed(2));
+    B.setAttribute('cx', bx.toFixed(2)); B.setAttribute('cy', by.toFixed(2));
+    const k = Math.floor(deg / (360 / N)) % N;
+    if (k !== lit){ if (lit >= 0) cells[lit].classList.remove('on'); cells[k].classList.add('on'); lit = k; }
+  }
+  const still = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let raf = 0, t0 = null;
+  function frame(now){ if (t0 === null) t0 = now; place((now - t0) / 1000); raf = requestAnimationFrame(frame); }
+  function start(){ cancelAnimationFrame(raf); t0 = null; if (still.matches) place(LAP * 0.4); else raf = requestAnimationFrame(frame); }
+  still.addEventListener('change', start);
+  start();
+})();
+</script>
+</body>
+</html>
