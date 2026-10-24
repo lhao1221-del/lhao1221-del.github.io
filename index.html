@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hao Li | Analog and Mixed-Signal IC Design</title>
+<meta name="description" content="Hao Li, PhD candidate in Electrical Engineering at the University at Buffalo, designing VCO- and memristor-based analog computing circuits in 65-nm CMOS.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F1F4F7;
+  --panel:#E4EAF0;
+  --ink:#15233B;
+  --muted:#4F5E73;
+  --rule:#C9D3DE;
+  --trace:#0D7A86;   /* scope channel 1 */
+  --amber:#B4740F;   /* scope channel 2 */
+  --display:"Bricolage Grotesque", system-ui, sans-serif;
+  --text:"Source Serif 4", Georgia, serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#0F1B2D;
+    --panel:#17263C;
+    --ink:#E3E9F1;
+    --muted:#9DAABD;
+    --rule:#2A3B55;
+    --trace:#3CC3CF;
+    --amber:#E6A73A;
+  }
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--text);font-size:1.0625rem;line-height:1.62;
+}
+a{color:var(--trace);text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{color:var(--ink)}
+:focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:2px}
+
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+
+/* ---------- header ---------- */
+.top{display:flex;justify-content:space-between;align-items:center;padding:22px 0;gap:16px;flex-wrap:wrap}
+.top .mark{font-family:var(--display);font-weight:600;font-size:1.05rem;color:var(--ink);text-decoration:none}
+.top nav{display:flex;gap:20px;flex-wrap:wrap}
+.top nav a{font-family:var(--display);font-size:.95rem;color:var(--muted);text-decoration:none}
+.top nav a:hover{color:var(--ink)}
+
+/* ---------- hero ---------- */
+.hero{display:grid;grid-template-columns:1.25fr .9fr;gap:48px;align-items:center;padding:48px 0 72px}
+.hero h1{
+  font-family:var(--display);font-weight:700;letter-spacing:-.025em;
+  font-size:clamp(3rem,8vw,5.6rem);line-height:.95;margin:0 0 22px;
+  font-variation-settings:"opsz" 96;
+}
+.hero .role{font-family:var(--display);font-size:1.3rem;line-height:1.35;margin:0 0 18px;max-width:30ch}
+.hero p.lede{color:var(--muted);max-width:56ch;margin:0 0 28px}
+.links{display:flex;flex-wrap:wrap;gap:10px}
+.links a{
+  font-family:var(--display);font-size:.95rem;font-weight:600;text-decoration:none;
+  padding:9px 16px;border:1.5px solid var(--ink);border-radius:999px;color:var(--ink);
+}
+.links a.primary{background:var(--ink);color:var(--paper)}
+.links a:hover{border-color:var(--trace);color:var(--trace)}
+.links a.primary:hover{background:var(--trace);border-color:var(--trace);color:var(--paper)}
+
+figure.osc{margin:0}
+figure.osc svg{width:100%;height:auto;max-width:400px;display:block;margin:0 auto}
+figure.osc figcaption{font-size:.9rem;color:var(--muted);text-align:center;margin-top:8px;font-style:italic}
+.wire{fill:none;stroke:var(--rule);stroke-width:3}
+.inv path,.inv circle{fill:var(--paper);stroke:var(--ink);stroke-width:2.5;stroke-linejoin:round}
+.inv:nth-of-type(2){--d:.5s}
+.inv:nth-of-type(3){--d:1s}
+.inv:nth-of-type(4){--d:1.5s}
+.inv:nth-of-type(5){--d:2s}
+.inv path,.inv circle{animation:fire 2.5s linear infinite;animation-delay:var(--d,0s)}
+@keyframes fire{0%,16%{stroke:var(--trace);stroke-width:3.5}17%,100%{stroke:var(--ink);stroke-width:2.5}}
+.pulse{fill:var(--amber)}
+.node{fill:var(--ink)}
+.trace-out{fill:none;stroke:var(--trace);stroke-width:2.5;stroke-linejoin:round}
+
+/* ---------- sections ---------- */
+section{padding:56px 0;border-top:1px solid var(--rule)}
+.sec{display:grid;grid-template-columns:200px 1fr;gap:40px}
+.sec > h2{
+  font-family:var(--display);font-weight:600;font-size:1.5rem;line-height:1.2;margin:0;
+  letter-spacing:-.01em;position:sticky;top:20px;align-self:start;
+}
+.body{max-width:68ch}
+.body > p:first-child{margin-top:0}
+
+.interests{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none}
+.interests li{font-family:var(--display);font-size:.92rem;background:var(--panel);padding:5px 12px;border-radius:6px}
+
+/* projects */
+.proj{padding:22px 0;border-bottom:1px solid var(--rule)}
+.proj:first-child{padding-top:0}
+.proj:last-child{border-bottom:0}
+.proj h3{font-family:var(--display);font-weight:600;font-size:1.2rem;line-height:1.3;margin:0 0 6px}
+.proj .where{color:var(--muted);font-size:.95rem;margin:0 0 10px}
+.proj p{margin:0 0 10px}
+.specs{display:flex;flex-wrap:wrap;gap:0;margin:12px 0 0;border:1.5px solid var(--ink);border-radius:8px;overflow:hidden;width:fit-content;max-width:100%}
+.specs div{padding:8px 14px;border-right:1.5px solid var(--ink)}
+.specs div:last-child{border-right:0}
+.specs b{display:block;font-family:var(--display);font-size:1.15rem;font-weight:700;line-height:1.2}
+.specs span{font-size:.82rem;color:var(--muted)}
+.status{display:inline-block;font-family:var(--display);font-size:.8rem;font-weight:600;padding:2px 9px;border-radius:999px;vertical-align:2px;margin-left:4px}
+.status.fab{background:color-mix(in srgb,var(--trace) 16%,transparent);color:var(--trace)}
+.status.sim{background:color-mix(in srgb,var(--amber) 18%,transparent);color:var(--amber)}
+
+/* timeline lists: publications, experience */
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:92px 1fr;gap:20px;padding:14px 0;border-bottom:1px dashed var(--rule)}
+.tl li:last-child{border-bottom:0}
+.tl time{font-family:var(--display);font-size:.9rem;color:var(--muted);padding-top:2px;white-space:nowrap}
+.tl .t{font-weight:600;line-height:1.4}
+.tl .a{color:var(--muted);font-size:.95rem;margin-top:2px}
+.tl .a strong{color:var(--ink);font-weight:600}
+.tl .v{font-size:.95rem;margin-top:2px;font-style:italic}
+.v .ok{font-style:normal;font-family:var(--display);font-weight:600;font-size:.82rem;color:var(--trace)}
+.v .sub{font-style:normal;font-family:var(--display);font-weight:600;font-size:.82rem;color:var(--amber)}
+h3.group{font-family:var(--display);font-weight:600;font-size:1.05rem;color:var(--muted);margin:32px 0 4px}
+h3.group:first-child{margin-top:0}
+
+.two{display:grid;grid-template-columns:1fr 1fr;gap:32px}
+.plain{margin:0;padding-left:1.1em}
+.plain li{margin:4px 0}
+.review{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:1rem}
+.review dt{font-family:var(--display);font-weight:600}
+.review dd{margin:0;color:var(--muted)}
+
+footer{border-top:1px solid var(--rule);padding:40px 0 56px;color:var(--muted);font-size:.95rem}
+footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+/* ---------- responsive ---------- */
+@media (max-width:820px){
+  .hero{grid-template-columns:1fr;gap:28px;padding:24px 0 48px}
+  figure.osc svg{max-width:300px}
+  .sec{grid-template-columns:1fr;gap:18px}
+  .sec > h2{position:static}
+  .two{grid-template-columns:1fr}
+}
+@media (max-width:520px){
+  .wrap{padding:0 16px}
+  .top nav{gap:14px}
+  .tl li{grid-template-columns:1fr;gap:2px}
+  .specs div{flex:1 1 45%;border-bottom:1.5px solid var(--ink)}
+}
+@media (prefers-reduced-motion: reduce){
+  .inv path,.inv circle{animation:none}
+  .pulse-anim{display:none}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <a class="mark" href="#">Hao Li</a>
+    <nav aria-label="Sections">
+      <a href="#research">Research</a>
+      <a href="#publications">Publications</a>
+      <a href="#projects">Chips</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main>
+  <div class="hero">
+    <div>
+      <h1>Hao Li</h1>
+      <p class="role">PhD candidate in Electrical Engineering, University at Buffalo</p>
+      <p class="lede">I design analog and mixed-signal circuits that compute. My current work uses ring oscillators and memristors to solve linear systems and emulate quantum algorithms on-chip in 65-nm CMOS, advised by Prof. Bibhu Datta Sahoo. I expect to graduate in December 2027.</p>
+      <div class="links">
+        <a class="primary" href="cv.pdf">Download CV</a>
+        <a href="https://scholar.google.com/citations?user=rcQs1goAAAAJ&amp;hl=en">Google Scholar</a>
+        <a href="https://www.linkedin.com/in/hao-li-5a5414289/">LinkedIn</a>
+        <a href="mailto:hli243@buffalo.edu">Email</a>
+      </div>
+    </div>
+
+    <figure class="osc">
+      <svg viewBox="0 0 320 320" role="img" aria-labelledby="osc-t">
+        <title id="osc-t">Animated five-stage ring oscillator: a pulse travels around a loop of five inverters.</title>
+        <circle class="wire" cx="160" cy="160" r="112"/>
+        <!-- traveling edge -->
+        <g class="pulse-anim">
+          <circle class="pulse" r="6">
+            <animateMotion dur="2.5s" repeatCount="indefinite" rotate="auto"
+              path="M160,48 A112,112 0 1,1 159.99,48"/>
+          </circle>
+        </g>
+        <!-- five inverters, each pointing clockwise along the loop -->
+        <g id="stages"></g>
+        <!-- output tap -->
+        <line x1="160" y1="272" x2="160" y2="300" style="stroke:var(--rule)" stroke-width="3"/>
+        <circle class="node" cx="160" cy="272" r="4.5"/>
+      </svg>
+      <figcaption>A five-stage ring oscillator, the building block of my VCO-based computing circuits.</figcaption>
+    </figure>
+  </div>
+
+  <section id="research">
+    <div class="sec">
+      <h2>Research</h2>
+      <div class="body">
+        <p>I work on analog computing architectures built from voltage-controlled oscillators. Phase and frequency carry the signal, so the circuits scale with CMOS technology instead of fighting its shrinking voltage headroom. Alongside that, I design dynamic-element-matching DACs, transimpedance amplifiers, and optical driver circuits.</p>
+        <ul class="interests" aria-label="Research interests">
+          <li>Analog and mixed-signal design</li>
+          <li>VCO-based analog computing</li>
+          <li>VCO-based quantum computing circuits</li>
+          <li>DEM DACs</li>
+          <li>VCO-based low-pass filters</li>
+          <li>TIA and driver circuits</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="sec">
+      <h2>Chips</h2>
+      <div class="body">
+        <article class="proj">
+          <h3>Ring-oscillator and memristor linear-equation solver <span class="status fab">Measured</span></h3>
+          <p class="where">University at Buffalo, NSF project, 65-nm TSMC CMOS</p>
+          <p>An 8 × 8 analog linear-equation system built from ring VCOs and memristors. It performs 4 × 4 matrix inversion for massive-MIMO detection. These are measured silicon results:</p>
+          <div class="specs" role="list">
+            <div role="listitem"><b>2 µs</b><span>solution latency</span></div>
+            <div role="listitem"><b>0.4 mW</b><span>power</span></div>
+            <div role="listitem"><b>0.0146 mm²</b><span>area</span></div>
+            <div role="listitem"><b>8-bit</b><span>accuracy</span></div>
+          </div>
+        </article>
+        <article class="proj">
+          <h3>12-qubit quantum computing emulator <span class="status sim">Pre-tape-out</span></h3>
+          <p class="where">University at Buffalo, 65-nm TSMC CMOS</p>
+          <p>A VCO and memristor chip that runs Grover's search and the quantum Fourier transform. It has been simulated in Cadence Virtuoso and is planned for tape-out.</p>
+        </article>
+        <article class="proj">
+          <h3>Ring-VCO integrator and DEM DAC <span class="status fab">Fabricated</span></h3>
+          <p class="where">University at Buffalo, 65-nm TSMC CMOS</p>
+          <p>A ring-VCO-based integrator, now fabricated, and a dynamic-element-matching DAC modeled in Simulink and Virtuoso.</p>
+        </article>
+        <article class="proj">
+          <h3>Silicon optoelectronic interface driver for optical computing <span class="status fab">Fabricated</span></h3>
+          <p class="where">Xi'an Jiaotong University, 180-nm TSMC CMOS, 2022–2024</p>
+          <p>An eight-channel Mach-Zehnder modulator driver with eight-segment MZM optical paths. It takes 1 Gb/s input and performs up to 8-bit optoelectronic digital-to-analog conversion.</p>
+        </article>
+        <article class="proj">
+          <h3>Pulsed time-of-flight LiDAR receiver front end <span class="status fab">In production</span></h3>
+          <p class="where">Xi'an Jiaotong University, 180-nm TSMC CMOS, 2021–2022</p>
+          <p>A folded, stacked in-channel structure reuses current for higher power efficiency and integrates the low-power supply with the front end. The chip is now in commercial production.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="publications">
+    <div class="sec">
+      <h2>Publications</h2>
+      <div class="body">
+        <h3 class="group">Journal papers</h3>
+        <ul class="tl">
+          <li><time datetime="2026-10">Oct 2026</time><div>
+            <div class="t">A 0.0146 mm², 0.4 mW ring-oscillator-based analog matrix-inversion macro for massive MIMO in 65 nm CMOS</div>
+            <div class="a"><strong>Hao Li</strong>, Rizwan S. Peerla, Frank Barrows, Jonathan Bird, Bibhu Datta Sahoo</div>
+            <div class="v">IEEE Journal of Solid-State Circuits <span class="sub">Submitted</span></div>
+          </div></li>
+          <li><time datetime="2026-10">Oct 2026</time><div>
+            <div class="t">Beyond MOSFETs: overcoming linearity constraints in analog computing with molecular FETs</div>
+            <div class="a"><strong>Hao Li</strong>, Sai Sanjeet, M. Zaid Zaz, Peter Dowben, Jonathan Bird, Bibhu Datta Sahoo</div>
+            <div class="v">IEEE Open Journal of Circuits and Systems <span class="sub">Submitted</span></div>
+          </div></li>
+          <li><time datetime="2026-06">Jun 2026</time><div>
+            <div class="t">A ring oscillator and memristor hybrid architecture for high-speed analog solution of a system of linear equations</div>
+            <div class="a"><strong>Hao Li</strong>, Rizwan S. Peerla, Frank Barrows, Francesco Caravelli, Bibhu Datta Sahoo</div>
+            <div class="v">IEEE Journal on Emerging and Selected Topics in Circuits and Systems <span class="ok">Accepted</span></div>
+          </div></li>
+          <li><time datetime="2022-09">Sep 2022</time><div>
+            <div class="t">A short-circuit current limiting and protection circuit for high-side switches</div>
+            <div class="v">Journal paper</div>
+          </div></li>
+        </ul>
+
+        <h3 class="group">Conference papers</h3>
+        <ul class="tl">
+          <li><time datetime="2026-08">Aug 2026</time><div>
+            <div class="t">Design of analog SNNs with 4-bit programmable synapses using molecular FETs</div>
+            <div class="a">Sai Sanjeet, <strong>Hao Li</strong>, M. Zaid Zaz, Peter Dowben, Jonathan Bird, Bibhu Datta Sahoo</div>
+            <div class="v">IEEE 69th MWSCAS <span class="ok">Accepted</span></div>
+          </div></li>
+          <li><time datetime="2025-08">Aug 2025</time><div>
+            <div class="t">A T-DEM based high-speed time-interleaved digital-to-analog converter</div>
+            <div class="a"><strong>Hao Li</strong>, Bibhu Datta Sahoo</div>
+            <div class="v">IEEE 68th MWSCAS</div>
+          </div></li>
+          <li><time datetime="2025-08">Aug 2025</time><div>
+            <div class="t">Comparison of input range and area-power tradeoff of fully segmented and highly segmented DEM digital-to-analog converters</div>
+            <div class="a"><strong>Hao Li</strong>, Bibhu Datta Sahoo</div>
+            <div class="v">IEEE 68th MWSCAS</div>
+          </div></li>
+          <li><time datetime="2023-10">Oct 2023</time><div>
+            <div class="t">A 250-kHz-BW 15.8-ENOB second-order noise-shaping SAR ADC with multi-path-input floating inverter amplifier</div>
+            <div class="v">Conference paper. 97.15 dB SNDR, 3.76 mW at 3.3 V, Schreier FoM 175.4 dB</div>
+          </div></li>
+          <li><time datetime="2022-10">Oct 2022</time><div>
+            <div class="t">Optical receiver front-end for 50G PON in 40 nm CMOS</div>
+            <div class="v">Conference paper. A low-power 50 Gb/s CMOS transimpedance amplifier</div>
+          </div></li>
+        </ul>
+
+        <h3 class="group">Patents</h3>
+        <ul class="tl">
+          <li><time datetime="2025-03">Mar 2025</time><div>
+            <div class="t">A laser radar receiving front-end circuit, optical circuit and chip</div>
+            <div class="v">CN Patent App. CN202411636310.2A</div>
+          </div></li>
+          <li><time datetime="2024-08">Aug 2024</time><div>
+            <div class="t">Multi-mode multi-line laser radar receiving circuit, receiving device and laser radar</div>
+            <div class="v">CN Patent App. CN202410664832.7A</div>
+          </div></li>
+          <li><time datetime="2022-08">Aug 2022</time><div>
+            <div class="t">IToF and DToF dual-mode VCSEL driving circuit, module, chip, method and equipment</div>
+            <div class="v">CN Patent CN114976858B</div>
+          </div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="sec">
+      <h2>Education</h2>
+      <div class="body">
+        <ul class="tl">
+          <li><time>2024–2027</time><div>
+            <div class="t">PhD, Electrical Engineering, University at Buffalo (SUNY)</div>
+            <div class="a">Advisor: Bibhu Datta Sahoo. GPA 4.00 / 4.00. NSF-funded research assistant.</div>
+          </div></li>
+          <li><time>2021–2024</time><div>
+            <div class="t">ME, Electrical Engineering, Xi'an Jiaotong University</div>
+          </div></li>
+          <li><time>2017–2021</time><div>
+            <div class="t">BE, Electrical Engineering, University of Electronic Science and Technology of China</div>
+          </div></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="recognition">
+    <div class="sec">
+      <h2>Recognition and service</h2>
+      <div class="body two">
+        <div>
+          <h3 class="group">Awards</h3>
+          <ul class="plain">
+            <li>IEEE Circuits and Systems Student Travel Grant, 2026</li>
+            <li>Student Poster Award, 3rd place, Workshop on Emerging Trends in Semiconductor Technology</li>
+            <li>Outstanding Graduate Student, Xi'an Jiaotong University</li>
+            <li>National Endeavor Fellowship</li>
+            <li>Outstanding Student Scholarship, UESTC</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="group">Reviewer</h3>
+          <dl class="review">
+            <dt>IEEE TCAS-I</dt><dd>3 papers</dd>
+            <dt>IEEE OJCAS</dt><dd>2 papers</dd>
+            <dt>IEEE ISCAS</dt><dd>4 papers</dd>
+            <dt>IEEE MWSCAS</dt><dd>8 papers</dd>
+            <dt>IEEE VLSID</dt><dd>3 papers</dd>
+          </dl>
+          <h3 class="group">Tools</h3>
+          <p style="margin:0">Cadence Virtuoso, Simulink, TSMC 40/65/180-nm CMOS</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="sec">
+      <h2>Contact</h2>
+      <div class="body">
+        <p>Department of Electrical Engineering, University at Buffalo, Buffalo, NY 14260.<br>
+        Email <a href="mailto:hli243@buffalo.edu">hli243@buffalo.edu</a>. I am glad to hear about research collaborations and industry or academic positions starting in 2028.</p>
+      </div>
+    </div>
+  </section>
+  </main>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Hao Li</span>
+    <span>English and Mandarin Chinese</span>
+  </div>
+</footer>
+
+<script>
+// Draw the five inverters around the ring, each pointing clockwise.
+(function(){
+  const g = document.getElementById('stages');
+  const ns = 'http://www.w3.org/2000/svg';
+  const cx = 160, cy = 160, R = 112;
+  for (let i = 0; i < 5; i++){
+    const deg = -90 + i * 72;               // start at the top
+    const rad = deg * Math.PI / 180;
+    const x = cx + R * Math.cos(rad), y = cy + R * Math.sin(rad);
+    const s = document.createElementNS(ns, 'g');
+    s.setAttribute('class', 'inv');
+    s.setAttribute('transform', `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${deg + 90})`);
+    const tri = document.createElementNS(ns, 'path');
+    tri.setAttribute('d', 'M-16,-17 L-16,17 L13,0 Z');
+    const bub = document.createElementNS(ns, 'circle');
+    bub.setAttribute('cx', '18'); bub.setAttribute('cy', '0'); bub.setAttribute('r', '5');
+    s.append(tri, bub);
+    g.appendChild(s);
+  }
+})();
+</script>
+</body>
+</html>
